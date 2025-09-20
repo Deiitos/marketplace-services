@@ -1,34 +1,36 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import pkg from "pg";
 
 dotenv.config();
 const { Pool } = pkg;
 
 const app = express();
-const port = process.env.PORT || 3000;
 
+// Permitir requisições do frontend
+app.use(cors());
+app.use(express.json());
+
+// Conexão com PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false } // necessário para Render
 });
 
-// rota de teste
+// Rota de teste
 app.get("/", async (req, res) => {
-  res.send("API funcionando no Render!");
-});
-
-// rota para testar conexão com o banco
-app.get("/db-test", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
-    res.json(result.rows);
+    res.send(`Servidor rodando! Banco ativo em: ${result.rows[0].now}`);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erro ao conectar no banco");
+    res.status(500).send("Erro no banco de dados");
   }
 });
 
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
+// Porta do Render ou local
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
