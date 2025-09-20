@@ -11,7 +11,6 @@ function App() {
   useEffect(() => {
     getBackendMessage()
       .then(setMessage)
-      .catch((err) => console.error("Erro ao buscar mensagem:", err));
   }, []);
 
   // Pegar dados do backend diretamente usando import.meta.env.VITE_API_URL
