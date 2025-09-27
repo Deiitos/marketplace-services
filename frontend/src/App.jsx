@@ -1,48 +1,85 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { 
+  Box, 
+  Button, 
+  Text, 
+  VStack, 
+  Heading, 
+  HStack 
+} from "@chakra-ui/react";
+import Login from "./Pages/Loginn.jsx";
+import Cadastro from "./Pages/Cadastro.jsx";
+import Prestadores from "./Pages/Prestadores.jsx";
+import Layout from "./Layouts/topbar.jsx";
 import { getBackendMessage } from "./api";
 
 function App() {
-  const [message, setMessage] = useState("");
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [usuarios, setUsuarios] = useState([]);
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
+  const [modo, setModo] = useState("login");
 
-  // Pegar a mensagem do backend usando sua função do api.js
-  useEffect(() => {
-    getBackendMessage()
-      .then(setMessage)
-  }, []);
+  const handleCadastro = (novoUsuario) => {
+    setUsuarios([...usuarios, novoUsuario]);
+    setModo("login");
+  };
 
-  // Pegar dados do backend diretamente usando import.meta.env.VITE_API_URL
-  useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL;
-
-    if (!API_URL) {
-      setError("VITE_API_URL não definida");
-      setLoading(false);
-      return;
-    }
-
-    fetch(`${API_URL}/rota`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Erro ao buscar dados do backend");
-        return res.json();
-      })
-      .then((data) => setData(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <p>Carregando dados do backend...</p>;
-  if (error) return <p>Erro: {error}</p>;
+  const handleLogin = (usuario) => {
+    setUsuarioLogado(usuario);
+  };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Marketplace Services</h1>
-      <p>Mensagem do backend: {message}</p>
-      <h2>Dados do backend:</h2>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </div>
+    <Box minH="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center" p={6}>
+      {!usuarioLogado ? (
+        <VStack spacing={6} bg="white" p={8} rounded="xl" shadow="lg" w="full" maxW="sm">
+          {modo === "login" ? (
+            <>
+              <Heading size="xl" color="teal.500" textAlign="center">MarketPlace <br /> Services </Heading>
+              <Login usuarios={usuarios} onLogin={handleLogin} />
+
+              <HStack>
+                <Text>Não tem conta?</Text>
+                <Button 
+                  variant="link" 
+                  colorScheme="teal" 
+                  onClick={() => setModo("cadastro")}
+                >
+                  Cadastre-se
+                </Button>
+              </HStack>
+            </>
+          ) : (
+            <>
+              <Heading size="xl" color="teal.500" textAlign="center">MarketPlace <br /> Services </Heading>
+              <Cadastro onCadastro={handleCadastro} />
+
+              <HStack>
+                <Text>Já tem conta?</Text>
+                <Button 
+                  variant="link" 
+                  colorScheme="teal" 
+                  onClick={() => setModo("login")}
+                >
+                  Faça login
+                </Button>
+              </HStack>
+            </>
+          )}
+        </VStack>
+      ) : (
+        <Layout usuario={usuarioLogado} onLogout={() => setUsuarioLogado(null)}>
+        <VStack spacing={6} bg="white" p={8} rounded="xl" shadow="lg" w="full" maxW="md">
+          <Heading size="lg" color="teal.600">
+            Bem-vindo, {usuarioLogado.nome}! 🎉
+          </Heading>
+          <Button colorScheme="red" onClick={() => setUsuarioLogado(null)}>
+            Sair
+          </Button>
+          {/* Lista de prestadores */}
+          <Prestadores usuarios={usuarios} />
+        </VStack>
+        </Layout>
+      )}
+    </Box>
   );
 }
 
