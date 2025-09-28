@@ -12,18 +12,38 @@ import {
 
 function Cadastro({ onCadastro }) {
   const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [prestador, setPrestador] = useState(false);
   const [especialidade, setEspecialidade] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (nome && senha) {
-      onCadastro({ nome, senha, prestador, especialidade });
-      setNome("");
-      setSenha("");
-      setPrestador(false);
-      setEspecialidade("");
+    if (!nome || !email || !senha) return;
+
+    const usuario = { nome, email, senha, prestador, especialidade };
+
+    try {
+      const res = await fetch("http://localhost:5000/api/cadastro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(usuario),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        // callback para atualizar estado no App
+        if (onCadastro) onCadastro(data);
+        setNome("");
+        setEmail("");
+        setSenha("");
+        setPrestador(false);
+        setEspecialidade("");
+      } else {
+        console.error(data.error || "Erro ao cadastrar usuário");
+      }
+    } catch (err) {
+      console.error("Erro de conexão com o servidor", err);
     }
   };
 
@@ -42,6 +62,16 @@ function Cadastro({ onCadastro }) {
               placeholder="Digite seu nome"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel>Email</FormLabel>
+            <Input
+              type="email"
+              placeholder="Digite seu email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </FormControl>
 

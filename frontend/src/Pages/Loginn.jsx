@@ -10,22 +10,33 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-function Login({ usuarios, onLogin }) {
-  const [nome, setNome] = useState("");
+function Login({ onLogin }) {
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const usuario = usuarios.find(
-      (u) => u.nome === nome && u.senha === senha
-    );
+    if (!email || !senha) return;
 
-    if (usuario) {
-      setErro("");
-      onLogin(usuario);
-    } else {
-      setErro("Usuário ou senha incorretos!");
+    try {
+      const res = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setErro("");
+        if (onLogin) onLogin(data); // callback para atualizar estado no App
+      } else {
+        setErro(data.error || "Erro no login");
+      }
+    } catch (err) {
+      console.error(err);
+      setErro("Erro de conexão com o servidor");
     }
   };
 
@@ -38,12 +49,12 @@ function Login({ usuarios, onLogin }) {
       <form onSubmit={handleLogin}>
         <VStack spacing={4}>
           <FormControl isRequired>
-            <FormLabel>Nome de usuário</FormLabel>
+            <FormLabel>Email</FormLabel>
             <Input
-              type="text"
-              placeholder="Digite seu nome"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              type="email"
+              placeholder="Digite seu email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </FormControl>
 
