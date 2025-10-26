@@ -1,13 +1,15 @@
 import { useState } from "react";
 import {
   Box,
-  Button,
+  VStack,
+  Heading,
   FormControl,
   FormLabel,
   Input,
+  Button,
+  Checkbox,
   Select,
-  VStack,
-  Heading,
+  Text,
 } from "@chakra-ui/react";
 
 function Cadastro({ onCadastro }) {
@@ -16,34 +18,48 @@ function Cadastro({ onCadastro }) {
   const [senha, setSenha] = useState("");
   const [prestador, setPrestador] = useState(false);
   const [especialidade, setEspecialidade] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [erro, setErro] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleCadastro = async (e) => {
     e.preventDefault();
-    if (!nome || !email || !senha) return;
 
-    const usuario = { nome, email, senha, prestador, especialidade };
+    // Validações
+    if (!nome || !email || !senha) {
+      setErro("Preencha todos os campos obrigatórios.");
+      return;
+    }
+    if (prestador && !cidade) {
+      setErro("Prestadores precisam informar a cidade.");
+      return;
+    }
 
     try {
-      const res = await fetch("http://localhost:5000/api/cadastro", {
+      const res = await fetch("http://localhost:5000/api/usuarios", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(usuario),
+        body: JSON.stringify({
+          nome,
+          email,
+          senha, // o servidor deve gerar o hash
+          prestador,
+          especialidade: prestador ? especialidade : null,
+          cidade: prestador ? cidade : null,
+        }),
       });
 
       const data = await res.json();
+
       if (res.ok) {
-        // callback para atualizar estado no App
+        setErro("");
+        alert("Cadastro realizado com sucesso!");
         if (onCadastro) onCadastro(data);
-        setNome("");
-        setEmail("");
-        setSenha("");
-        setPrestador(false);
-        setEspecialidade("");
       } else {
-        console.error(data.error || "Erro ao cadastrar usuário");
+        setErro(data.error || "Erro ao cadastrar usuário");
       }
     } catch (err) {
-      console.error("Erro de conexão com o servidor", err);
+      console.error(err);
+      setErro("Erro de conexão com o servidor");
     }
   };
 
@@ -53,63 +69,59 @@ function Cadastro({ onCadastro }) {
         Cadastro
       </Heading>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleCadastro}>
         <VStack spacing={4}>
           <FormControl isRequired>
-            <FormLabel>Nome de usuário</FormLabel>
-            <Input
-              type="text"
-              placeholder="Digite seu nome"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-            />
+            <FormLabel>Nome</FormLabel>
+            <Input value={nome} onChange={(e) => setNome(e.target.value)} />
           </FormControl>
 
           <FormControl isRequired>
             <FormLabel>Email</FormLabel>
-            <Input
-              type="email"
-              placeholder="Digite seu email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </FormControl>
 
           <FormControl isRequired>
             <FormLabel>Senha</FormLabel>
-            <Input
-              type="password"
-              placeholder="Digite sua senha"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-            />
+            <Input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
           </FormControl>
 
           <FormControl>
-            <FormLabel>
-              <input
-                type="checkbox"
-                checked={prestador}
-                onChange={(e) => setPrestador(e.target.checked)}
-              />{" "}
-              Sou prestador de serviço
-            </FormLabel>
-            {prestador && (
-              <Select
-                value={especialidade}
-                onChange={(e) => setEspecialidade(e.target.value)}
-                placeholder="Selecione"
-              >
-                <option value="eletricista">Eletricista</option>
-                <option value="encanador">Encanador</option>
-                <option value="pintor">Pintor</option>
-                <option value="pedreiro">Pedreiro</option>
-                <option value="jardineiro">Jardineiro</option>
-              </Select>
-            )}
+            <Checkbox
+              isChecked={prestador}
+              onChange={(e) => setPrestador(e.target.checked)}
+            >
+              Quero me cadastrar como prestador
+            </Checkbox>
           </FormControl>
 
-          <Button type="submit" colorScheme="blue" w="full">
+          {prestador && (
+            <>
+              <FormControl isRequired>
+                <FormLabel>Cidade</FormLabel>
+                <Input value={cidade} onChange={(e) => setCidade(e.target.value)} />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Especialidade</FormLabel>
+                <Select
+                  value={especialidade}
+                  onChange={(e) => setEspecialidade(e.target.value)}
+                >
+                  <option value="">Selecione a especialidade</option>
+                  <option value="Eletricista">Eletricista</option>
+                  <option value="Encanador">Encanador</option>
+                  <option value="Pintor">Pintor</option>
+                  <option value="Pedreiro">Pedreiro</option>
+                  <option value="Jardineiro">Jardineiro</option>
+                </Select>
+              </FormControl>
+            </>
+          )}
+
+          {erro && <Text color="red.500">{erro}</Text>}
+
+          <Button type="submit" colorScheme="teal" w="full">
             Cadastrar
           </Button>
         </VStack>

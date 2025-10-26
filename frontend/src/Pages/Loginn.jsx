@@ -17,7 +17,7 @@ function Login({ onLogin }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email || !senha) return;
+    if (!email || !senha) return setErro("Preencha email e senha");
 
     try {
       const res = await fetch("http://localhost:5000/api/login", {
@@ -30,9 +30,12 @@ function Login({ onLogin }) {
 
       if (res.ok) {
         setErro("");
-        if (onLogin) onLogin(data); // callback para atualizar estado no App
+        if (onLogin) onLogin(data); // atualiza estado no App
+        setEmail("");
+        setSenha("");
       } else {
-        setErro(data.error || "Erro no login");
+        // Ajuste aqui: a API envia { message: "Email ou senha inválidos" }
+        setErro(data.message || "Erro no login");
       }
     } catch (err) {
       console.error(err);
