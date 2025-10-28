@@ -7,7 +7,7 @@ function Prestadores({ onAbrirPerfil }) {
   const navigate = useNavigate();
   const [filtros, setFiltros] = useState({ nome: "", cidade: "", especialidade: "", avaliacao: "" });
   const [resultados, setResultados] = useState([]);
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
   useEffect(() => {
     const filtrosSalvos = sessionStorage.getItem("filtrosPrestadores");

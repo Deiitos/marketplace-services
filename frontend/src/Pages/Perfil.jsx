@@ -35,7 +35,7 @@ function Perfil({ usuario, onVoltar }) {
   const [facebook, setFacebook] = useState("");
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [mediaAvaliacoes, setMediaAvaliacoes] = useState(0);
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
   useEffect(() => {
     if (!usuario) return;
@@ -43,7 +43,7 @@ function Perfil({ usuario, onVoltar }) {
     const fetchUsuario = async () => {
       try {
         // Buscar dados completos do usuário logado
-        const res = await fetch(`${import.meta.env.VITE_API_URL}api/usuario/${usuario.id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/usuario/${usuario.id}`);
         if (!res.ok) throw new Error("Erro ao buscar dados do usuário");
         const data = await res.json();
 

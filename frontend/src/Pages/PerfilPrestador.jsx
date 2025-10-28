@@ -17,7 +17,7 @@ function PerfilPrestador({ prestador: prestadorProp, usuario, onVoltar, onAtuali
   const [nota, setNota] = useState(5);
   const [comentario, setComentario] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
   // Buscar prestador
   useEffect(() => {
@@ -48,12 +48,12 @@ function PerfilPrestador({ prestador: prestadorProp, usuario, onVoltar, onAtuali
   const fetchAvaliacoesEMedia = async (usuarioId) => {
     try {
       // Avaliações
-      const resAval = await fetch(`http://localhost:5000/api/usuarios/${usuarioId}/avaliacoes`);
+      const resAval = await fetch(`${API_BASE_URL}/api/usuarios/${usuarioId}/avaliacoes`);
       const dataAval = await resAval.json();
       setAvaliacoes(Array.isArray(dataAval) ? dataAval : []);
 
       // Média
-      const resMedia = await fetch(`http://localhost:5000/api/usuarios/${usuarioId}/avaliacoes/media`);
+      const resMedia = await fetch(`${API_BASE_URL}/api/usuarios/${usuarioId}/avaliacoes/media`);
       const dataMedia = await resMedia.json();
       setPrestador((prev) => ({ ...prev, media_avaliacao: dataMedia.media || 0 }));
     } catch (err) {
@@ -83,7 +83,7 @@ function PerfilPrestador({ prestador: prestadorProp, usuario, onVoltar, onAtuali
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/avaliacoes`, {
+      const res = await fetch(`${API_BASE_URL}/api/avaliacoes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -20,7 +20,7 @@ function Cadastro({ onCadastro }) {
   const [especialidade, setEspecialidade] = useState("");
   const [cidade, setCidade] = useState("");
   const [erro, setErro] = useState("");
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
   const handleCadastro = async (e) => {
     e.preventDefault();
@@ -36,7 +36,7 @@ function Cadastro({ onCadastro }) {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}api/usuarios`, {
+      const res = await fetch(`${API_BASE_URL}/api/usuarios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
