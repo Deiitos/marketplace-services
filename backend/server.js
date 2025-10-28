@@ -13,6 +13,25 @@ app.use(express.json({ limit: "10mb" }));
 // ==========================
 // 🔹 Conexão com o banco
 // ==========================
+
+const pool = new Pool({
+  // Esta é a configuração CORRETA.
+  // Ela usa a DATABASE_URL fornecida pelo ambiente (Render ou .env local)
+  // e força o SSL, que é obrigatório no Render.
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+/*
+// ===================================
+// 📜 HISTÓRICO (Configuração Antiga / Quebrada)
+// ===================================
+// O bloco abaixo estava causando o erro "ENOTFOUND db" no Render.
+// Ele lia as variáveis separadas (DB_HOST='db') e elas
+// sobrescreviam a connectionString.
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   host: process.env.DB_HOST,
@@ -21,7 +40,8 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 });
-
+// ===================================
+*/
 pool
   .connect()
   .then(() => console.log("✅ Conectado ao banco de dados PostgreSQL"))
