@@ -21,7 +21,7 @@ function Login({ onLogin }) {
     if (!email || !senha) return setErro("Preencha email e senha");
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/login`, {
+      const res = await fetch(`${API_BASE_URL}api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, senha }),
