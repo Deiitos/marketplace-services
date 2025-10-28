@@ -7,6 +7,7 @@ function Prestadores({ onAbrirPerfil }) {
   const navigate = useNavigate();
   const [filtros, setFiltros] = useState({ nome: "", cidade: "", especialidade: "", avaliacao: "" });
   const [resultados, setResultados] = useState([]);
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   useEffect(() => {
     const filtrosSalvos = sessionStorage.getItem("filtrosPrestadores");
@@ -34,7 +35,7 @@ function Prestadores({ onAbrirPerfil }) {
         Object.entries(filtros).filter(([_, v]) => v !== "")
       ).toString();
 
-      const res = await fetch(`http://localhost:5000/api/prestadores?${params}`);
+      const res = await fetch(`${API_BASE_URL}api/prestadores?${params}`);
       if (!res.ok) throw new Error("Erro ao buscar prestadores");
 
       const data = await res.json();

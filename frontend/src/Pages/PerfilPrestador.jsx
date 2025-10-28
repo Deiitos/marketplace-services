@@ -17,6 +17,7 @@ function PerfilPrestador({ prestador: prestadorProp, usuario, onVoltar, onAtuali
   const [nota, setNota] = useState(5);
   const [comentario, setComentario] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // Buscar prestador
   useEffect(() => {
@@ -29,7 +30,7 @@ function PerfilPrestador({ prestador: prestadorProp, usuario, onVoltar, onAtuali
     const fetchPrestador = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:5000/api/usuario/${id}`);
+        const res = await fetch(`${API_BASE_URL}api/usuario/${id}`);
         if (!res.ok) throw new Error("Erro ao carregar prestador");
         const data = await res.json();
         setPrestador(data);
